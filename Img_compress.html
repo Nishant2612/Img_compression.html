@@ -1,0 +1,471 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="description" content="AI-powered responsive image compression and text to PDF conversion tool. Optimize your images and documents with ease." />
+  <meta name="keywords" content="Image Compression, PDF Conversion, Responsive Tool, SEO, AdSense" />
+  <meta name="author" content="YourName" />
+  <title>AI Image Compressor & PDF Converter</title>
+  <style>
+    /* RESET */
+    *, *::before, *::after {
+      box-sizing: border-box;
+      margin: 0; padding: 0;
+    }
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      line-height: 1.6;
+      background: #f4f7fc;
+      color: #333;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+    header {
+      background: #003366;
+      color: #fff;
+      padding: 1rem 1.5rem;
+      text-align: center;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    }
+    header h1 {
+      font-weight: 700;
+      font-size: 1.8rem;
+      letter-spacing: 1px;
+    }
+    nav {
+      display: flex;
+      justify-content: center;
+      background: #00509e;
+      box-shadow: inset 0 -3px 5px rgba(0,0,0,0.2);
+    }
+    nav button {
+      background: none;
+      border: none;
+      padding: 1rem 2rem;
+      color: #eee;
+      font-weight: 600;
+      font-size: 1rem;
+      cursor: pointer;
+      transition: background 0.3s ease;
+    }
+    nav button.active,
+    nav button:hover {
+      background: #0074d9;
+      color: white;
+    }
+    main {
+      flex: 1;
+      max-width: 900px;
+      margin: 2rem auto;
+      padding: 0 1rem;
+      width: 100%;
+    }
+    section {
+      display: none;
+      animation: fadeIn 0.8s ease forwards;
+    }
+    section.active {
+      display: block;
+    }
+    @keyframes fadeIn {
+      from {opacity: 0; transform: translateY(10px);}
+      to {opacity: 1; transform: translateY(0);}
+    }
+
+    /* FORM STYLES */
+    .form-group {
+      margin-bottom: 1rem;
+    }
+    label {
+      display: block;
+      font-weight: 600;
+      margin-bottom: 0.3rem;
+    }
+    input[type="file"],
+    select,
+    textarea,
+    input[type="text"] {
+      width: 100%;
+      padding: 0.5rem 0.75rem;
+      font-size: 1rem;
+      border: 1.8px solid #ccc;
+      border-radius: 5px;
+      transition: border-color 0.3s ease;
+      resize: vertical;
+    }
+    input[type="file"]:focus,
+    select:focus,
+    textarea:focus,
+    input[type="text"]:focus {
+      border-color: #00509e;
+      outline: none;
+    }
+    button {
+      background-color: #00509e;
+      color: white;
+      border: none;
+      padding: 0.75rem 1.5rem;
+      border-radius: 6px;
+      cursor: pointer;
+      font-weight: 700;
+      font-size: 1.1rem;
+      box-shadow: 0 4px 12px rgba(0,80,158,0.3);
+      transition: background-color 0.3s ease, box-shadow 0.3s ease;
+      user-select: none;
+    }
+    button:disabled {
+      background-color: #8aacc8;
+      cursor: not-allowed;
+      box-shadow: none;
+    }
+    button:hover:not(:disabled) {
+      background-color: #0074d9;
+      box-shadow: 0 6px 16px rgba(0,116,217,0.4);
+    }
+    .output-image {
+      margin-top: 1rem;
+      max-width: 100%;
+      border-radius: 8px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+    }
+    .output-info {
+      margin-top: 0.75rem;
+      font-style: italic;
+      color: #555;
+    }
+    .ad-container {
+      margin: 2rem 0;
+      border: 1px solid #ddd;
+      border-radius: 8px;
+      background: #fff;
+      padding: 1rem;
+      text-align: center;
+      color: #999;
+      font-size: 0.9rem;
+      user-select: none;
+    }
+    footer {
+      background: #003366;
+      color: white;
+      padding: 1rem 1.5rem;
+      text-align: center;
+      font-size: 0.9rem;
+      margin-top: auto;
+    }
+
+    /* Responsive */
+    @media (max-width: 600px) {
+      nav button {
+        padding: 0.75rem 1rem;
+        font-size: 0.9rem;
+      }
+      button {
+        width: 100%;
+      }
+    }
+
+    /* Textarea for PDF */
+    textarea {
+      min-height: 150px;
+      font-family: monospace, monospace;
+    }
+
+    /* Stylish file input */
+    input[type="file"] {
+      cursor: pointer;
+    }
+
+    /* Loading spinner */
+    .spinner {
+      border: 3px solid #f3f3f3;
+      border-top: 3px solid #00509e;
+      border-radius: 50%;
+      width: 24px;
+      height: 24px;
+      animation: spin 1s linear infinite;
+      display: inline-block;
+      vertical-align: middle;
+      margin-left: 0.5rem;
+    }
+    @keyframes spin {
+      0% { transform: rotate(0deg);}
+      100% { transform: rotate(360deg);}
+    }
+  </style>
+</head>
+<body>
+
+<header>
+  <h1>AI Image Compressor & PDF Converter</h1>
+</header>
+
+<nav aria-label="Primary">
+  <button id="nav-home" class="active" aria-controls="home-section" aria-selected="true" role="tab">Home</button>
+  <button id="nav-image" aria-controls="image-section" aria-selected="false" role="tab">Image Compression</button>
+  <button id="nav-pdf" aria-controls="pdf-section" aria-selected="false" role="tab">Text to PDF</button>
+</nav>
+
+<main>
+  <!-- Home Section -->
+  <section id="home-section" role="tabpanel" aria-labelledby="nav-home" class="active">
+    <h2>Welcome to Your AI-Powered Media Optimizer</h2>
+    <p>
+      Compress your images efficiently and convert any written text into a clean PDF file — all in one place, fully responsive, and optimized for speed and SEO.
+    </p>
+    <div class="ad-container" id="home-ad">
+      <!-- Google AdSense Ad Unit -->
+      <div id="adsense-home" style="width: 100%; height: 90px; background:#e0e0e0; display:flex; align-items:center; justify-content:center;">
+        <span>Google AdSense Ad Unit (Insert your Ad Unit ID here)</span>
+      </div>
+    </div>
+    <p style="margin-top: 2rem; font-weight: 600;">
+      Navigate above to start compressing images or converting text to PDF.
+    </p>
+  </section>
+
+  <!-- Image Compression Section -->
+  <section id="image-section" role="tabpanel" aria-labelledby="nav-image">
+    <h2>Image Compression Tool</h2>
+    <div class="form-group">
+      <label for="image-input">Select an Image (JPEG or PNG):</label>
+      <input type="file" id="image-input" accept="image/jpeg, image/png" aria-describedby="image-desc" />
+      <small id="image-desc">Maximum file size: 10MB</small>
+    </div>
+    <div class="form-group">
+      <label for="compression-level">Select Compression Level:</label>
+      <select id="compression-level" aria-describedby="compression-desc">
+        <option value="0.9">High Quality (90%)</option>
+        <option value="0.75" selected>Balanced (75%)</option>
+        <option value="0.5">Medium (50%)</option>
+        <option value="0.3">Low Quality (30%)</option>
+      </select>
+      <small id="compression-desc">Lower quality means smaller file size.</small>
+    </div>
+    <button id="compress-btn" disabled>Compress Image</button>
+    <div id="compress-status" style="margin-top: 1rem;"></div>
+    <img id="output-image" class="output-image" alt="Compressed Image Preview" hidden />
+    <div id="output-info" class="output-info"></div>
+
+    <div class="ad-container" id="image-ad" style="margin-top: 3rem;">
+      <!-- Google AdSense Ad Unit -->
+      <div id="adsense-image" style="width: 100%; height: 90px; background:#e0e0e0; display:flex; align-items:center; justify-content:center;">
+        <span>Google AdSense Ad Unit (Insert your Ad Unit ID here)</span>
+      </div>
+    </div>
+  </section>
+
+  <!-- Text to PDF Section -->
+  <section id="pdf-section" role="tabpanel" aria-labelledby="nav-pdf">
+    <h2>Convert Text to PDF</h2>
+    <div class="form-group">
+      <label for="pdf-text">Enter or Paste Your Text Here:</label>
+      <textarea id="pdf-text" placeholder="Write or paste your document text here..."></textarea>
+    </div>
+    <div class="form-group">
+      <label for="pdf-filename">Filename:</label>
+      <input type="text" id="pdf-filename" placeholder="document.pdf" aria-describedby="filename-desc" />
+      <small id="filename-desc">Include ".pdf" extension for best results.</small>
+    </div>
+    <button id="generate-pdf-btn" disabled>Generate PDF</button>
+    <div id="pdf-status" style="margin-top: 1rem;"></div>
+
+    <div class="ad-container" id="pdf-ad" style="margin-top: 3rem;">
+      <!-- Google AdSense Ad Unit -->
+      <div id="adsense-pdf" style="width: 100%; height: 90px; background:#e0e0e0; display:flex; align-items:center; justify-content:center;">
+        <span>Google AdSense Ad Unit (Insert your Ad Unit ID here)</span>
+      </div>
+    </div>
+  </section>
+</main>
+
+<footer>
+  &copy; 2025 AI Media Optimizer. All rights reserved.
+</footer>
+
+<!-- External scripts -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js" integrity="sha512-/F9UBFhTqkzC+4q7+Zb4P9bdccYJdG9kA0y1RauT27pDrH8HsPHM6Ri6EItAM6QkImrkq3dQ5e3Ly9X8woVJVQ==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+
+<script>
+  (() => {
+    const navButtons = document.querySelectorAll('nav button');
+    const sections = document.querySelectorAll('main section');
+
+    navButtons.forEach(btn => {
+      btn.addEventListener('click', () => {
+        navButtons.forEach(b => {
+          b.classList.remove('active');
+          b.setAttribute('aria-selected', 'false');
+        });
+        sections.forEach(s => s.classList.remove('active'));
+
+        btn.classList.add('active');
+        btn.setAttribute('aria-selected', 'true');
+
+        const targetId = btn.getAttribute('aria-controls');
+        const targetSection = document.getElementById(targetId);
+        if(targetSection){
+          targetSection.classList.add('active');
+          targetSection.focus();
+        }
+      });
+    });
+
+    // Image Compression Tool Logic
+    const imageInput = document.getElementById('image-input');
+    const compressBtn = document.getElementById('compress-btn');
+    const compressionLevel = document.getElementById('compression-level');
+    const compressStatus = document.getElementById('compress-status');
+    const outputImage = document.getElementById('output-image');
+    const outputInfo = document.getElementById('output-info');
+
+    let selectedFile = null;
+
+    imageInput.addEventListener('change', () => {
+      compressStatus.textContent = '';
+      outputImage.hidden = true;
+      outputInfo.textContent = '';
+      selectedFile = imageInput.files[0];
+
+      if (!selectedFile) {
+        compressBtn.disabled = true;
+        return;
+      }
+      if (!['image/jpeg', 'image/png'].includes(selectedFile.type)) {
+        compressStatus.textContent = 'Only JPEG or PNG images are supported.';
+        compressBtn.disabled = true;
+        return;
+      }
+      if (selectedFile.size > 10 * 1024 * 1024) {
+        compressStatus.textContent = 'File too large! Max 10MB allowed.';
+        compressBtn.disabled = true;
+        return;
+      }
+      compressBtn.disabled = false;
+    });
+
+    compressBtn.addEventListener('click', async () => {
+      if (!selectedFile) return;
+      compressBtn.disabled = true;
+      compressStatus.innerHTML = 'Compressing <span class="spinner"></span>';
+      outputImage.hidden = true;
+      outputInfo.textContent = '';
+
+      try {
+        const quality = parseFloat(compressionLevel.value);
+        const compressedBlob = await compressImage(selectedFile, quality);
+
+        // Show compressed image preview
+        const compressedURL = URL.createObjectURL(compressedBlob);
+        outputImage.src = compressedURL;
+        outputImage.hidden = false;
+
+        // Info
+        const origSizeKB = (selectedFile.size / 1024).toFixed(2);
+        const compSizeKB = (compressedBlob.size / 1024).toFixed(2);
+        outputInfo.textContent = `Original Size: ${origSizeKB} KB | Compressed Size: ${compSizeKB} KB`;
+
+        // Download link
+        const downloadLink = document.createElement('a');
+        downloadLink.href = compressedURL;
+        downloadLink.download = `compressed_${selectedFile.name}`;
+        downloadLink.textContent = 'Download Compressed Image';
+        downloadLink.style.display = 'inline-block';
+        downloadLink.style.marginTop = '10px';
+        downloadLink.style.fontWeight = '600';
+        downloadLink.style.color = '#00509e';
+        compressStatus.innerHTML = '';
+        compressStatus.appendChild(downloadLink);
+
+      } catch (error) {
+        compressStatus.textContent = 'Error during compression: ' + error.message;
+      } finally {
+        compressBtn.disabled = false;
+      }
+    });
+
+    function compressImage(file, quality) {
+      return new Promise((resolve, reject) => {
+        const img = new Image();
+        const reader = new FileReader();
+
+        reader.onload = e => {
+          img.src = e.target.result;
+        };
+        reader.onerror = e => reject(new Error('Failed to read file.'));
+        img.onerror = () => reject(new Error('Invalid image file.'));
+
+        img.onload = () => {
+          // Use canvas to compress
+          const canvas = document.createElement('canvas');
+          const ctx = canvas.getContext('2d');
+
+          // Resize canvas to image size
+          canvas.width = img.width;
+          canvas.height = img.height;
+
+          ctx.drawImage(img, 0, 0);
+
+          // Convert canvas to blob (JPEG or PNG)
+          const type = file.type === 'image/png' ? 'image/jpeg' : file.type;
+          // For PNG input, convert to JPEG for compression (PNG compression client-side is limited)
+          canvas.toBlob(
+            blob => {
+              if (blob) resolve(blob);
+              else reject(new Error('Compression failed.'));
+            },
+            type,
+            quality
+          );
+        };
+
+        reader.readAsDataURL(file);
+      });
+    }
+
+    // PDF Generation Logic
+    const pdfText = document.getElementById('pdf-text');
+    const pdfFilename = document.getElementById('pdf-filename');
+    const generatePdfBtn = document.getElementById('generate-pdf-btn');
+    const pdfStatus = document.getElementById('pdf-status');
+
+    function validatePdfInputs() {
+      generatePdfBtn.disabled = !pdfText.value.trim() || !pdfFilename.value.trim() || !pdfFilename.value.trim().toLowerCase().endsWith('.pdf');
+    }
+    pdfText.addEventListener('input', validatePdfInputs);
+    pdfFilename.addEventListener('input', validatePdfInputs);
+
+    generatePdfBtn.addEventListener('click', () => {
+      pdfStatus.textContent = 'Generating PDF...';
+      generatePdfBtn.disabled = true;
+
+      const { jsPDF } = window.jspdf;
+      const doc = new jsPDF();
+
+      // Split text into lines to avoid overflow
+      const text = pdfText.value.trim();
+      const lines = doc.splitTextToSize(text, 180); // 180 width margin approx
+
+      doc.setFont('helvetica', 'normal');
+      doc.setFontSize(12);
+      doc.text(lines, 10, 10);
+
+      // Save PDF file
+      try {
+        doc.save(pdfFilename.value.trim());
+        pdfStatus.textContent = 'PDF generated successfully!';
+      } catch (err) {
+        pdfStatus.textContent = 'Error generating PDF: ' + err.message;
+      }
+
+      generatePdfBtn.disabled = false;
+    });
+
+    // Initial validation on load
+    validatePdfInputs();
+  })();
+</script>
+
+</body>
+</html>
